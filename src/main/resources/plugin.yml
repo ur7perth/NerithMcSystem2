@@ -1,0 +1,48 @@
+name: NerithMcSystem2
+version: 1.0.0
+main: com.nerithmc.system.NerithMcSystem2
+api-version: '1.21'
+author: NerithMc
+description: KOTH, Gate, kill messages, item despawn and system info.
+softdepend: [PlaceholderAPI]
+
+commands:
+  kothwand:
+    description: Get the selection wand.
+    permission: nerithmc.admin
+  sethoth:
+    description: Save the KOTH zone from your selection.
+    aliases: [setkoth]
+    permission: nerithmc.admin
+  kothtime:
+    description: Set the KOTH timer (example 1h, 30m, 1h30m).
+    usage: /kothtime <time>
+    permission: nerithmc.admin
+  remkoth:
+    description: Remove the KOTH zone.
+    permission: nerithmc.admin
+  gatetime:
+    description: Set the Gate timer.
+    usage: /gatetime <time>
+    permission: nerithmc.admin
+  gatedoor:
+    description: Save selected blocks as gate door blocks (use "clear" to remove all).
+    permission: nerithmc.admin
+  gateredward:
+    description: Save selected blocks as gate reward blocks (use "clear" to remove all).
+    permission: nerithmc.admin
+  ram:
+    description: Show RAM amount and usage.
+    permission: nerithmc.admin
+  cpu:
+    description: Show CPU info and usage.
+    permission: nerithmc.admin
+  nerithmc:
+    description: Reload the config.
+    usage: /nerithmc reload
+    permission: nerithmc.admin
+
+permissions:
+  nerithmc.admin:
+    description: Access to all NerithMcSystem2 commands.
+    default: op
