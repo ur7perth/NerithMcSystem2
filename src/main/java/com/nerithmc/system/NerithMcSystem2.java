@@ -1,7 +1,6 @@
 package com.nerithmc.system;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +16,7 @@ public class NerithMcSystem2 extends JavaPlugin {
     private SelectionManager selection;
     private KothManager koth;
     private GateManager gate;
+    private GateRewardListener rewardGui;
 
     @Override
     public void onEnable() {
@@ -27,16 +27,19 @@ public class NerithMcSystem2 extends JavaPlugin {
         selection = new SelectionManager(this);
         koth = new KothManager(this);
         gate = new GateManager(this);
+        rewardGui = new GateRewardListener(this);
         koth.load();
         gate.load();
 
         Bukkit.getPluginManager().registerEvents(selection, this);
+        Bukkit.getPluginManager().registerEvents(rewardGui, this);
         Bukkit.getPluginManager().registerEvents(new KillMessageListener(this), this);
         Bukkit.getPluginManager().registerEvents(new ItemDespawnListener(this), this);
 
         Commands commands = new Commands(this);
         for (String name : List.of("kothwand", "sethoth", "kothtime", "remkoth", "gatetime",
-                "gatedoor", "gateredward", "ram", "cpu", "nerithmc")) {
+                "gatedoor", "gateremovedoor", "gateredward", "gateremoveset", "gateredwardgui",
+                "ram", "cpu", "nerithmc")) {
             PluginCommand cmd = getCommand(name);
             if (cmd != null) cmd.setExecutor(commands);
         }
@@ -48,7 +51,6 @@ public class NerithMcSystem2 extends JavaPlugin {
 
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new NerithPlaceholders(this).register();
-            getLogger().info("PlaceholderAPI hooked: %nerithmc_koth% and %nerithmc_gate%");
         } else {
             getLogger().warning("PlaceholderAPI not found. Scoreboard placeholders are disabled.");
         }
@@ -73,21 +75,5 @@ public class NerithMcSystem2 extends JavaPlugin {
     public SelectionManager selection() { return selection; }
     public KothManager koth() { return koth; }
     public GateManager gate() { return gate; }
-
-    /** Returns a message from config with prefix (still using & codes). */
-    public String raw(String key, String... replacements) {
-        String s = getConfig().getString("messages." + key, key);
-        for (int i = 0; i + 1 < replacements.length; i += 2) {
-            s = s.replace(replacements[i], replacements[i + 1]);
-        }
-        return getConfig().getString("prefix", "") + s;
-    }
-
-    public void send(CommandSender to, String key, String... replacements) {
-        to.sendMessage(Util.comp(raw(key, replacements)));
-    }
-
-    public void broadcast(String key, String... replacements) {
-        Bukkit.broadcast(Util.comp(raw(key, replacements)));
-    }
+    public GateRewardListener rewardGui() { return rewardGui; }
 }
