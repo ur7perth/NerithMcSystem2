@@ -20,86 +20,53 @@ public class Commands implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission("nerithmc.admin")) {
-            plugin.send(sender, "no-permission");
-            return true;
-        }
+        if (!sender.hasPermission("nerithmc.admin")) return true;
 
         String name = cmd.getName().toLowerCase();
         switch (name) {
             case "kothwand" -> {
-                Player p = player(sender);
-                if (p == null) return true;
-                p.getInventory().addItem(plugin.selection().createWand());
-                plugin.send(p, "wand-given");
+                if (sender instanceof Player p) p.getInventory().addItem(plugin.selection().createWand());
             }
             case "sethoth" -> {
-                Player p = player(sender);
-                if (p == null) return true;
+                if (!(sender instanceof Player p)) return true;
                 Region r = plugin.selection().getRegion(p);
-                if (r == null) { plugin.send(p, "no-selection"); return true; }
-                plugin.koth().setRegion(r);
-                plugin.send(p, "koth-set");
+                if (r != null) plugin.koth().setRegion(r);
             }
-            case "remkoth" -> {
-                plugin.koth().removeRegion();
-                plugin.send(sender, "koth-removed");
-            }
+            case "remkoth" -> plugin.koth().removeRegion();
             case "kothtime" -> {
-                long s = timeArg(sender, name, args);
-                if (s <= 0) return true;
-                plugin.koth().setDuration(s);
-                plugin.send(sender, "koth-time-set", "%time%", args[0]);
+                long s = timeArg(args);
+                if (s > 0) plugin.koth().setDuration(s);
             }
             case "gatetime" -> {
-                long s = timeArg(sender, name, args);
-                if (s <= 0) return true;
-                plugin.gate().setDuration(s);
-                plugin.send(sender, "gate-time-set", "%time%", args[0]);
+                long s = timeArg(args);
+                if (s > 0) plugin.gate().setDuration(s);
             }
-            case "gatedoor", "gateredward" -> {
-                if (args.length > 0 && args[0].equalsIgnoreCase("clear")) {
-                    plugin.gate().clearAll();
-                    plugin.send(sender, "gate-cleared");
-                    return true;
-                }
-                Player p = player(sender);
-                if (p == null) return true;
+            case "gatedoor" -> {
+                if (!(sender instanceof Player p)) return true;
                 Region r = plugin.selection().getRegion(p);
-                if (r == null) { plugin.send(p, "no-selection"); return true; }
-                boolean door = name.equals("gatedoor");
-                int count = door ? plugin.gate().addDoor(r) : plugin.gate().addReward(r);
-                if (count < 0) {
-                    plugin.send(p, "gate-too-large", "%max%", "" + plugin.getConfig().getInt("gate.max-blocks", 10000));
-                } else {
-                    plugin.send(p, door ? "gate-door-set" : "gate-reward-set", "%count%", "" + count);
-                }
+                if (r != null) plugin.gate().addDoor(r);
+            }
+            case "gateredward" -> {
+                if (!(sender instanceof Player p)) return true;
+                Region r = plugin.selection().getRegion(p);
+                if (r != null) plugin.gate().addReward(r);
+            }
+            case "gateremovedoor" -> plugin.gate().clearDoors();
+            case "gateremoveset" -> plugin.gate().clearRewards();
+            case "gateredwardgui" -> {
+                if (sender instanceof Player p) plugin.rewardGui().openGui(p);
             }
             case "ram" -> ram(sender);
             case "cpu" -> cpu(sender);
-            case "nerithmc" -> {
-                plugin.reloadConfig();
-                plugin.send(sender, "reloaded");
-            }
+            case "nerithmc" -> plugin.reloadConfig();
             default -> { return false; }
         }
         return true;
     }
 
-    private Player player(CommandSender sender) {
-        if (sender instanceof Player p) return p;
-        plugin.send(sender, "players-only");
-        return null;
-    }
-
-    private long timeArg(CommandSender sender, String command, String[] args) {
-        if (args.length < 1) {
-            plugin.send(sender, "usage-time", "%command%", command);
-            return -1;
-        }
-        long s = Util.parseSeconds(args[0]);
-        if (s <= 0) plugin.send(sender, "invalid-time");
-        return s;
+    private long timeArg(String[] args) {
+        if (args.length < 1) return -1;
+        return Util.parseSeconds(args[0]);
     }
 
     private void line(CommandSender to, String text) {
