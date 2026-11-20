@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -36,6 +37,7 @@ public class GateManager {
     private final NerithMcSystem2 plugin;
     private final Map<String, Stored> doors = new LinkedHashMap<>();
     private final Map<String, Stored> rewards = new LinkedHashMap<>();
+    private final List<ItemStack> rewardItems = new ArrayList<>();
     private long duration;
     private long remaining;
     private boolean open;
@@ -52,6 +54,7 @@ public class GateManager {
         open = false;
         doors.clear();
         rewards.clear();
+        rewardItems.clear();
         for (String s : d.getStringList("gate.door")) {
             Stored st = Stored.parse(s);
             if (st != null) doors.put(st.key(), st);
@@ -59,6 +62,10 @@ public class GateManager {
         for (String s : d.getStringList("gate.reward")) {
             Stored st = Stored.parse(s);
             if (st != null) rewards.put(st.key(), st);
+        }
+        List<?> items = d.getList("gate.reward-items", new ArrayList<>());
+        for (Object o : items) {
+            if (o instanceof ItemStack item) rewardItems.add(item);
         }
     }
 
@@ -71,6 +78,7 @@ public class GateManager {
         rewards.values().forEach(s -> reward.add(s.serialize()));
         d.set("gate.door", door);
         d.set("gate.reward", reward);
+        d.set("gate.reward-items", new ArrayList<>(rewardItems));
         plugin.saveData();
     }
 
@@ -106,10 +114,32 @@ public class GateManager {
         return count;
     }
 
-    public void clearAll() {
+    /** /gateremovedoor */
+    public void clearDoors() {
         restoreDoors();
         doors.clear();
+        save();
+    }
+
+    /** /gateremoveset */
+    public void clearRewards() {
         rewards.clear();
+        save();
+    }
+
+    public boolean isReward(Block b) {
+        return rewards.containsKey(b.getWorld().getName() + ";" + b.getX() + ";" + b.getY() + ";" + b.getZ());
+    }
+
+    public List<ItemStack> getRewardItems() {
+        List<ItemStack> copy = new ArrayList<>();
+        for (ItemStack i : rewardItems) copy.add(i.clone());
+        return copy;
+    }
+
+    public void setRewardItems(List<ItemStack> items) {
+        rewardItems.clear();
+        rewardItems.addAll(items);
         save();
     }
 
@@ -131,7 +161,6 @@ public class GateManager {
         for (Stored s : rewards.values()) {
             place(s);
         }
-        plugin.broadcast("gate-open");
 
         long delay = Math.max(1, plugin.getConfig().getInt("gate.close-delay-seconds", 6)) * 20L;
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
