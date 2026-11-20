@@ -16,18 +16,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class SelectionManager implements Listener {
 
-    private final NerithMcSystem2 plugin;
     private final NamespacedKey wandKey;
     private final Map<UUID, Location> pos1 = new HashMap<>();
     private final Map<UUID, Location> pos2 = new HashMap<>();
 
     public SelectionManager(NerithMcSystem2 plugin) {
-        this.plugin = plugin;
         this.wandKey = new NamespacedKey(plugin, "selection_wand");
     }
 
@@ -35,7 +34,7 @@ public class SelectionManager implements Listener {
         ItemStack item = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = item.getItemMeta();
         meta.displayName(Util.comp("&6&lSelection Wand"));
-        meta.lore(java.util.List.of(
+        meta.lore(List.of(
                 Util.comp("&7Left click: &fpos1"),
                 Util.comp("&7Right click: &fpos2")));
         meta.getPersistentDataContainer().set(wandKey, PersistentDataType.BYTE, (byte) 1);
@@ -59,10 +58,8 @@ public class SelectionManager implements Listener {
         Action action = e.getAction();
         if (action == Action.LEFT_CLICK_BLOCK) {
             pos1.put(p.getUniqueId(), block.getLocation());
-            plugin.send(p, "pos1-set", "%x%", "" + block.getX(), "%y%", "" + block.getY(), "%z%", "" + block.getZ());
         } else if (action == Action.RIGHT_CLICK_BLOCK) {
             pos2.put(p.getUniqueId(), block.getLocation());
-            plugin.send(p, "pos2-set", "%x%", "" + block.getX(), "%y%", "" + block.getY(), "%z%", "" + block.getZ());
         } else {
             return;
         }
