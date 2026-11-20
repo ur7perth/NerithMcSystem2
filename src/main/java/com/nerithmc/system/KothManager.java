@@ -18,6 +18,7 @@ public class KothManager {
     private long duration;
     private long remaining;
     private boolean active;
+    private int idle;
     private final Map<UUID, Integer> progress = new HashMap<>();
 
     public KothManager(NerithMcSystem2 plugin) {
@@ -29,8 +30,7 @@ public class KothManager {
         region = Region.load(d.getConfigurationSection("koth.region"));
         long def = Util.parseSeconds(plugin.getConfig().getString("koth.default-time", "1h"));
         duration = d.getLong("koth.time", def > 0 ? def : 3600);
-        remaining = duration;
-        active = false;
+        reset();
     }
 
     private void save() {
@@ -41,26 +41,29 @@ public class KothManager {
         plugin.saveData();
     }
 
+    /** Back to the countdown (KOTH not active). */
+    private void reset() {
+        remaining = duration;
+        active = false;
+        idle = 0;
+        progress.clear();
+    }
+
     public void setRegion(Region r) {
         this.region = r;
-        this.remaining = duration;
-        this.active = false;
-        progress.clear();
+        reset();
         save();
     }
 
     public void removeRegion() {
         this.region = null;
-        this.active = false;
-        progress.clear();
+        reset();
         save();
     }
 
     public void setDuration(long seconds) {
         this.duration = seconds;
-        this.remaining = seconds;
-        this.active = false;
-        progress.clear();
+        reset();
         save();
     }
 
@@ -72,13 +75,13 @@ public class KothManager {
             if (remaining <= 0) {
                 remaining = 0;
                 active = true;
-                plugin.broadcast("koth-active");
+                idle = 0;
             }
         }
 
         boolean canCapture = active || !plugin.getConfig().getBoolean("koth.capture-only-when-active", true);
         int max = plugin.getConfig().getInt("koth.capture-seconds", 60);
-        String bar = plugin.getConfig().getString("koth.actionbar", "&e&lKOTH &8» &a%seconds%&7/&a%max%");
+        String bar = plugin.getConfig().getString("koth.actionbar", "&8&lKoth &f» &7التكمله &f%seconds%&7/&f%max%");
 
         Set<UUID> inZone = new HashSet<>();
         Player winner = null;
@@ -98,16 +101,27 @@ public class KothManager {
 
         progress.keySet().retainAll(inZone);
 
-        if (winner != null) win(winner);
+        if (winner != null) {
+            win(winner);
+            return;
+        }
+
+        // Idle reset: Active KOTH with nobody inside goes back to the timer.
+        if (active) {
+            if (!inZone.isEmpty()) {
+                idle = 0;
+            } else {
+                idle++;
+                int limit = plugin.getConfig().getInt("koth.idle-reset-seconds", 90);
+                if (limit > 0 && idle >= limit) reset();
+            }
+        }
     }
 
     private void win(Player p) {
         String cmd = plugin.getConfig().getString("koth.reward-command", "crates givekey Koth %player%");
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd.replace("%player%", p.getName()));
-        plugin.broadcast("koth-won", "%player%", p.getName());
-        progress.clear();
-        active = false;
-        remaining = duration;
+        reset();
     }
 
     public String placeholder() {
