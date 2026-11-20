@@ -15,21 +15,28 @@ commands:
     aliases: [setkoth]
     permission: nerithmc.admin
   kothtime:
-    description: Set the KOTH timer (example 1h, 30m, 1h30m).
-    usage: /kothtime <time>
+    description: Set the KOTH timer.
     permission: nerithmc.admin
   remkoth:
     description: Remove the KOTH zone.
     permission: nerithmc.admin
   gatetime:
     description: Set the Gate timer.
-    usage: /gatetime <time>
     permission: nerithmc.admin
   gatedoor:
-    description: Save selected blocks as gate door blocks (use "clear" to remove all).
+    description: Save selected blocks as gate door blocks.
+    permission: nerithmc.admin
+  gateremovedoor:
+    description: Remove all saved gate door blocks.
     permission: nerithmc.admin
   gateredward:
-    description: Save selected blocks as gate reward blocks (use "clear" to remove all).
+    description: Save selected blocks as gate reward blocks.
+    permission: nerithmc.admin
+  gateremoveset:
+    description: Remove all saved gate reward blocks.
+    permission: nerithmc.admin
+  gateredwardgui:
+    description: Open the reward items GUI.
     permission: nerithmc.admin
   ram:
     description: Show RAM amount and usage.
@@ -39,7 +46,6 @@ commands:
     permission: nerithmc.admin
   nerithmc:
     description: Reload the config.
-    usage: /nerithmc reload
     permission: nerithmc.admin
 
 permissions:
