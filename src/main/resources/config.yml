@@ -1,0 +1,56 @@
+prefix: "&8[&bNerithMc&8] &7"
+
+koth:
+  default-time: "1h"
+  capture-seconds: 60
+  # true = players can only capture after the timer reached 0 (Active)
+  capture-only-when-active: true
+  # %player% is replaced with the winner name (runs from console)
+  reward-command: "crates givekey Koth %player%"
+  active-text: "&aActive"
+  not-set-text: "&7Not Set"
+  actionbar: "&e&lKOTH &8» &7Capturing: &a%seconds%&7/&a%max%"
+
+gate:
+  default-time: "30m"
+  # seconds before door blocks come back after they break
+  close-delay-seconds: 6
+  open-text: "&aOpen"
+  not-set-text: "&7Not Set"
+  max-blocks: 10000
+
+kill-messages:
+  enabled: true
+  fists-name: "Fists"
+  # Variables: %killer% %victim% %item%
+  player:
+    - "&c%victim% &7was slain by &c%killer% &7using &c%item%"
+    - "&7%killer% &cdestroyed &7%victim% &cwith &7%item%"
+    - "&c%killer% &7took down &c%victim% &7with &c%item%"
+  other: "&c%victim% &7died."
+
+item-despawn:
+  enabled: true
+  seconds: 90
+
+messages:
+  no-permission: "&cYou do not have permission."
+  players-only: "&cOnly players can use this command."
+  reloaded: "&aConfig reloaded."
+  wand-given: "&aYou received the selection wand. &7Left click = pos1, right click = pos2."
+  pos1-set: "&aPosition 1 set to &f%x%, %y%, %z%"
+  pos2-set: "&aPosition 2 set to &f%x%, %y%, %z%"
+  no-selection: "&cSelect pos1 and pos2 in the same world with the wand first."
+  invalid-time: "&cInvalid time. Examples: 30s, 10m, 1h, 1h30m"
+  usage-time: "&cUsage: /%command% <time>"
+  koth-set: "&aKOTH zone saved."
+  koth-removed: "&aKOTH zone removed."
+  koth-time-set: "&aKOTH time set to &f%time%&a."
+  koth-active: "&6&lKOTH &eis now &a&lACTIVE&e! Go capture it!"
+  koth-won: "&6&lKOTH &e%player% &7captured the KOTH!"
+  gate-time-set: "&aGate time set to &f%time%&a."
+  gate-door-set: "&aSaved &f%count% &agate door blocks."
+  gate-reward-set: "&aSaved &f%count% &agate reward blocks."
+  gate-cleared: "&aCleared all saved blocks."
+  gate-too-large: "&cThe selection is too large (max %max% blocks)."
+  gate-open: "&6&lGATE &eis now &a&lOPEN&e!"
